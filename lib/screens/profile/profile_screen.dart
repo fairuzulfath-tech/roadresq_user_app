@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
+import '../help/help_support_screen.dart';
+import '../loyalty/loyalty_screen.dart';
+import '../request/scheduled_booking_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -133,6 +136,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 14),
 
+                  // Quick Actions section
+                  _SectionHeader(title: 'Quick Actions'),
+                  const SizedBox(height: 10),
+                  _SettingsCard(
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.calendar_today_outlined,
+                        title: 'Schedule a Service',
+                        onTap: () => Navigator.push(
+                          context,
+                          AppTheme.slideRoute(const ScheduledBookingScreen()),
+                        ),
+                      ),
+                      const Divider(height: 1, indent: 56),
+                      _SettingsTile(
+                        icon: Icons.workspace_premium_outlined,
+                        title: 'Loyalty & Rewards',
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppTheme.accent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'View Points',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.accent,
+                            ),
+                          ),
+                        ),
+                        onTap: () => Navigator.push(
+                          context,
+                          AppTheme.slideRoute(const LoyaltyScreen()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+
                   _SectionHeader(title: 'Support & Legal'),
                   const SizedBox(height: 10),
                   _SettingsCard(
@@ -140,7 +186,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _SettingsTile(
                         icon: Icons.help_outline,
                         title: 'Help & Support',
-                        onTap: () => _showComingSoon(context),
+                        onTap: () => Navigator.push(
+                          context,
+                          AppTheme.slideRoute(const HelpSupportScreen()),
+                        ),
                       ),
                       const Divider(height: 1, indent: 56),
                       _SettingsTile(

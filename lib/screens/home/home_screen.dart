@@ -7,12 +7,15 @@ import '../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/request_provider.dart';
 import '../../providers/location_provider.dart';
+import '../../providers/loyalty_provider.dart';
 import '../request/request_screen.dart';
 import '../request/tracking_screen.dart';
+import '../request/scheduled_booking_screen.dart';
 import '../history/history_screen.dart';
 import '../profile/profile_screen.dart';
 import '../sos/sos_screen.dart';
 import '../notifications/notifications_screen.dart';
+import '../loyalty/loyalty_screen.dart';
 import 'widgets/service_card_widget.dart';
 
 class HomeScreen extends StatefulWidget {

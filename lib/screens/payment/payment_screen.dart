@@ -1,17 +1,23 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../providers/loyalty_provider.dart';
+import '../../models/service_request_model.dart';
+import 'invoice_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   final double amount;
   final String serviceType;
   final String requestId;
+  final ServiceRequestModel? request;
 
   const PaymentScreen({
     super.key,
     required this.amount,
     required this.serviceType,
     required this.requestId,
+    this.request,
   });
 
   @override
@@ -29,6 +35,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   late AnimationController _successController;
   bool _showSuccess = false;
+  String _transactionId = '';
 
   final List<Map<String, dynamic>> _paymentMethods = [
     {
@@ -76,9 +83,21 @@ class _PaymentScreenState extends State<PaymentScreen>
   Future<void> _pay() async {
     setState(() => _isPaying = true);
     await Future.delayed(const Duration(seconds: 2));
+    // Generate transaction ID
+    final rand = Random();
+    final txId = 'TXN${DateTime.now().millisecondsSinceEpoch}${rand.nextInt(9999).toString().padLeft(4, '0')}';
+    // Award loyalty points (10 pts per ₹100)
+    final pts = (widget.amount / 100 * 10).round();
+    if (mounted) {
+      context.read<LoyaltyProvider>().addPoints(
+            pts,
+            '${widget.serviceType.replaceAll('_', ' ')} Service',
+          );
+    }
     setState(() {
       _isPaying = false;
       _showSuccess = true;
+      _transactionId = txId;
     });
     await _successController.forward();
   }
@@ -88,8 +107,28 @@ class _PaymentScreenState extends State<PaymentScreen>
     if (_showSuccess) {
       return _SuccessScreen(
         amount: _total,
-        onDone: () {
-          Navigator.of(context).pop();
+        onDone: () => Navigator.of(context).pop(),
+        onViewInvoice: () {
+          final req = widget.request ??
+              ServiceRequestModel(
+                id: widget.requestId,
+                userId: 'user_mock_001',
+                serviceType: widget.serviceType,
+                userLocation: const GeoPoint(19.0760, 72.8777),
+                address: 'Mumbai, Maharashtra',
+                status: 'completed',
+                fare: widget.amount,
+                createdAt: DateTime.now(),
+              );
+          Navigator.push(
+            context,
+            AppTheme.slideRoute(InvoiceScreen(
+              request: req,
+              amount: widget.amount,
+              paymentMethod: _paymentMethods[_selectedPayment]['name'] as String,
+              transactionId: _transactionId,
+            )),
+          );
         },
       );
     }
@@ -487,8 +526,13 @@ class _PaymentScreenState extends State<PaymentScreen>
 class _SuccessScreen extends StatefulWidget {
   final double amount;
   final VoidCallback onDone;
+  final VoidCallback? onViewInvoice;
 
-  const _SuccessScreen({required this.amount, required this.onDone});
+  const _SuccessScreen({
+    required this.amount,
+    required this.onDone,
+    this.onViewInvoice,
+  });
 
   @override
   State<_SuccessScreen> createState() => _SuccessScreenState();
@@ -674,6 +718,30 @@ class _SuccessScreenState extends State<_SuccessScreen>
                         ),
                       ),
                     ),
+                    if (widget.onViewInvoice != null) ...[
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton.icon(
+                          onPressed: widget.onViewInvoice,
+                          icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                          label: const Text(
+                            'View Invoice',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

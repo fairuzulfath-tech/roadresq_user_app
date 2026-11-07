@@ -6,6 +6,7 @@ import 'providers/auth_provider.dart';
 import 'providers/request_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/location_provider.dart';
+import 'providers/loyalty_provider.dart';
 import 'screens/splash/splash_screen.dart';
 
 void main() async {
@@ -35,6 +36,7 @@ class RoadResQApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RequestProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => LoyaltyProvider()),
       ],
       child: MaterialApp(
         title: 'RoadResQ',
